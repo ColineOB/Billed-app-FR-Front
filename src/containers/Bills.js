@@ -37,8 +37,6 @@ export default class {
         })
           .map(doc => {
             try {
-              
-              console.log(doc);
               return {
                 ...doc,
                 date: formatDate(doc.date),
