@@ -5,7 +5,7 @@
 import {screen, waitFor} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import userEvent from '@testing-library/user-event'
 
@@ -40,6 +40,27 @@ describe("Given I am connected as an employee", () => {
         })
       expect(dates).toEqual(datesSorted)
     })
+
+    test("a new page opens when I click the button 'Nouvelle note de frais'", () => {
+      handleClickNewBill = jest.fn();
+      document.body.innerHTML = BillsUI({ data: bills })
+      let redirect = false
+      const newBillButton = screen.getByTestId('btn-new-bill');
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+        redirect = true;
+      };
+      // Ajout listener 'click' sur le bouton
+      newBillButton.addEventListener('click', () => {
+        handleClickNewBill();
+        onNavigate(ROUTES_PATH.NewBill)
+      });
+      // Simule clic 
+      userEvent.click(newBillButton);
+      // Vérifie si appelé
+      expect(redirect).toBeTruthy();
+    })
+
     test("a modal opens when I click on the actions icon", () => {
       $.fn.modal = jest.fn()
       document.body.innerHTML = BillsUI({ data: bills })
