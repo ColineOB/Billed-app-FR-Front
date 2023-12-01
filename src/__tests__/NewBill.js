@@ -4,10 +4,27 @@
 
 import { fireEvent, screen, render} from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
-import NewBill from "../containers/NewBill.js"
+import NewBill from "../containers/NewBill.js";
 import { ROUTES } from "../constants/routes";
 import { localStorageMock } from "../__mocks__/localStorage.js"
+import { formatDate } from "../app/format.js"
+import userEvent from '@testing-library/user-event';
+import mockStore from "../__mocks__/store"
 
+const inputData = {
+  "name": "encore",
+  "date": "2004-04-04",
+  "amount": 400,
+  "vat": "80",
+  "pct": 20,
+  "commentary": "séminaire billed",
+  "id": "47qAXb6fIm2zOKkLzMro",
+  "fileUrl": "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
+  "type": "Hôtel et logement",
+  "fileName": "preview-facture-free-201801-pdf-1.jpg",
+  "date": "2004-04-04",
+  "email": "a@a",
+};
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -72,20 +89,6 @@ describe("Given I am connected as an employee", () => {
 
     test("I can send a completed invoice", async () => {
       document.body.innerHTML = NewBillUI();
-      const inputData = {
-        "name": "encore",
-        "date": "2004-04-04",
-        "amount": "400",
-        "vat": "80",
-        "pct": "20",
-        "commentary": "séminaire billed",
-        "id": "47qAXb6fIm2zOKkLzMro",
-        "fileUrl": "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
-        "type": "Hôtel et logement",
-        "fileName": "preview-facture-free-201801-pdf-1.jpg",
-        "date": "2004-04-04",
-        "email": "a@a",
-      };
       
       const nameExpense = screen.getByTestId("expense-name");
       fireEvent.change(nameExpense, { target: { value: inputData.name } });
@@ -97,7 +100,7 @@ describe("Given I am connected as an employee", () => {
       
       const amount = screen.getByTestId("amount");
       fireEvent.change(amount, { target: { value: inputData.amount } });
-      expect(amount.value).toBe(inputData.amount);
+      expect(amount.value).toBe(inputData.amount.toString());
 
       const vat = screen.getByTestId("vat");
       fireEvent.change(vat, { target: { value: inputData.vat } });
@@ -105,7 +108,7 @@ describe("Given I am connected as an employee", () => {
       
       const pct = screen.getByTestId("pct");
       fireEvent.change(pct, { target: { value: inputData.pct } });
-      expect(pct.value).toBe(inputData.pct);
+      expect(pct.value).toBe(inputData.pct.toString());
       
       const commentary = screen.getByTestId("commentary");
       fireEvent.change(commentary, { target: { value: inputData.commentary } });
@@ -114,15 +117,53 @@ describe("Given I am connected as an employee", () => {
       const formNewBill = screen.getByTestId('form-new-bill');
 
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      const user = JSON.stringify({
+      window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
+      }))
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+
+      const store =  null;
+
+      const newbill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage:  window.localStorage,
       })
 
-      const handleSubmit = jest.fn((e) => e.preventDefault());
+
+      const handleSubmit = jest.fn(newbill.handleSubmit);
       formNewBill.addEventListener("submit", handleSubmit);
       fireEvent.submit(formNewBill);
 
       expect(handleSubmit).toHaveBeenCalled();
     });
+    // test("upload file", async () => {
+    //   document.body.innerHTML = NewBillUI();
+    //   const file = new File(['(⌐□_□)'], 'test-file.png', { type: 'image/png' });
+      
+    //   const onNavigate = (pathname) => {
+    //     document.body.innerHTML = ROUTES({ pathname });
+    //   };
+
+    //   const store =  jest.fn();
+
+    //   const newbill = new NewBill({
+    //     document,
+    //     onNavigate,
+    //     store,
+    //     localStorage:  window.localStorage,
+    //   })
+
+    //   const fileInput = screen.getByTestId("file");
+    //   userEvent.upload(fileInput, file);
+    //   expect(fileInput.files[0]).toStrictEqual(file);      // const handleChangeFile = jest.fn(newbill.handleChangeFile);
+    //   const handleChangeFile = jest.fn(newbill.handleChangeFile);
+    //   expect(handleChangeFile).toHaveBeenCalled()
+    // });
   });
 });
