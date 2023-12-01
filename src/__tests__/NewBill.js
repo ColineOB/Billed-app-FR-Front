@@ -12,12 +12,12 @@ import { localStorageMock } from "../__mocks__/localStorage.js"
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     test("I cannot send an empty new bill", async () => {
-      const mockFunction = jest.fn();
+      // const mockFunction = jest.fn();
       document.body.innerHTML = NewBillUI();
       const formNewBill = screen.getByTestId('form-new-bill');
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
+      // const onNavigate = (pathname) => {
+      //   document.body.innerHTML = ROUTES({ pathname })
+      // }
       
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
