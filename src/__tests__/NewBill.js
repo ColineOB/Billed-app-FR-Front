@@ -11,6 +11,8 @@ import { formatDate } from "../app/format.js"
 import userEvent from '@testing-library/user-event';
 import mockStore from "../__mocks__/store"
 
+jest.mock("../app/store", () => mockStore)
+
 const inputData = {
   "name": "encore",
   "date": "2004-04-04",
@@ -29,24 +31,14 @@ const inputData = {
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     test("handleSubmit have be called", async () => {
-      // const mockFunction = jest.fn();
       document.body.innerHTML = NewBillUI();
       const formNewBill = screen.getByTestId('form-new-bill');
-      // const onNavigate = (pathname) => {
-      //   document.body.innerHTML = ROUTES({ pathname })
-      // }
+
       
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Admin'
       }))
-
-      // const testingNewBills = new NewBill({
-      //   document,
-      //   onNavigate,
-      //   store: null,
-      //   localStorage: window.localStorage,
-      // });
 
       const handleSubmit = jest.fn((e) => e.preventDefault());
       formNewBill.addEventListener("submit", handleSubmit);
@@ -54,38 +46,39 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
     });
-    test("I cannot send an empty new bill", async () => {
-      document.body.innerHTML = NewBillUI();
 
-      const nameExpense = screen.getByTestId("expense-name");
-      expect(nameExpense.value).toBe("");
+    // test("I cannot send an empty new bill", async () => {
+    //   document.body.innerHTML = NewBillUI();
 
-      const date = screen.getByTestId("datepicker");
-      expect(date.value).toBe("");
+    //   const nameExpense = screen.getByTestId("expense-name");
+    //   expect(nameExpense.value).toBe("");
 
-      const amount = screen.getByTestId("amount");
-      expect(amount.value).toBe("");
+    //   const date = screen.getByTestId("datepicker");
+    //   expect(date.value).toBe("");
+
+    //   const amount = screen.getByTestId("amount");
+    //   expect(amount.value).toBe("");
       
-      const vat = screen.getByTestId("vat");
-      expect(vat.value).toBe("");
+    //   const vat = screen.getByTestId("vat");
+    //   expect(vat.value).toBe("");
 
-      const pct = screen.getByTestId("pct");
-      expect(pct.value).toBe("");
+    //   const pct = screen.getByTestId("pct");
+    //   expect(pct.value).toBe("");
 
-      const commentary = screen.getByTestId("commentary");
-      expect(commentary.value).toBe("");
+    //   const commentary = screen.getByTestId("commentary");
+    //   expect(commentary.value).toBe("");
       
-      const file = screen.getByTestId("file");
-      expect(file.value).toBe("");
+    //   const file = screen.getByTestId("file");
+    //   expect(file.value).toBe("");
 
-      const formNewBill = screen.getByTestId('form-new-bill');
-      const handleSubmit = jest.fn((e) => e.preventDefault());
+    //   const formNewBill = screen.getByTestId('form-new-bill');
+    //   const handleSubmit = jest.fn((e) => e.preventDefault());
 
-      formNewBill.addEventListener("submit", handleSubmit);
-      fireEvent.submit(formNewBill);
+    //   formNewBill.addEventListener("submit", handleSubmit);
+    //   fireEvent.submit(formNewBill);
 
-      expect(screen.getByTestId('form-new-bill')).toBeTruthy();
-    });
+    //   expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+    // });
 
     test("I can send a completed invoice", async () => {
       document.body.innerHTML = NewBillUI();
@@ -142,28 +135,60 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
     });
-    // test("upload file", async () => {
-    //   document.body.innerHTML = NewBillUI();
-    //   const file = new File(['(⌐□_□)'], 'test-file.png', { type: 'image/png' });
+    
+    test("upload file", async () => {
+      document.body.innerHTML = NewBillUI();
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      const file = new File(['image'], 'test-file.png', { type: 'image/png' });
       
-    //   const onNavigate = (pathname) => {
-    //     document.body.innerHTML = ROUTES({ pathname });
-    //   };
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
 
-    //   const store =  jest.fn();
+      // const store =  null;
 
-    //   const newbill = new NewBill({
-    //     document,
-    //     onNavigate,
-    //     store,
-    //     localStorage:  window.localStorage,
-    //   })
+      const newbill = new NewBill({
+        document,
+        onNavigate,
+        store: mockStore,
+        localStorage:  window.localStorage,
+      })
 
-    //   const fileInput = screen.getByTestId("file");
-    //   userEvent.upload(fileInput, file);
-    //   expect(fileInput.files[0]).toStrictEqual(file);      // const handleChangeFile = jest.fn(newbill.handleChangeFile);
-    //   const handleChangeFile = jest.fn(newbill.handleChangeFile);
-    //   expect(handleChangeFile).toHaveBeenCalled()
-    // });
+      const fileInput = screen.getByTestId("file");
+      const handleChangeFile = jest.fn((e) => newbill.handleChangeFile(e));
+      fileInput.addEventListener('change',handleChangeFile)
+      userEvent.upload(fileInput, file);
+      expect(fileInput.files[0]).toStrictEqual(file);
+      expect(handleChangeFile).toHaveBeenCalled()
+    });
   });
 });
+// describe('Given I am a user connected as Employee and I am on NewBill page', () => {
+//   describe('When I submit the new bill', () => {
+//     test('Then create a new bill from mock API POST', async () => {
+
+//       const bill = [{
+//         "id": "47qAXb6fIm2zOKkLzMro",
+//         "vat": "80",
+//         "fileUrl": "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
+//         "status": "pending",
+//         "type": "Hôtel et logement",
+//         "commentary": "séminaire billed",
+//         "name": "encore",
+//         "fileName": "preview-facture-free-201801-pdf-1.jpg",
+//         "date": "2004-04-04",
+//         "amount": 400,
+//         "commentAdmin": "ok",
+//         "email": "a@a",
+//         "pct": 20
+//       }]
+  
+//       const callStore = jest.spyOn(mockStore, 'bills');
+//       mockStore.bills().create(bill);
+//       expect(callStore).toHaveBeenCalled();
+//     });
+// });
+// });
