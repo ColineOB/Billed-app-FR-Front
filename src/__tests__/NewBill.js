@@ -30,23 +30,6 @@ const inputData = {
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
-    test("handleSubmit have be called", async () => {
-      document.body.innerHTML = NewBillUI();
-      const formNewBill = screen.getByTestId('form-new-bill');
-
-      
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Admin'
-      }))
-
-      const handleSubmit = jest.fn((e) => e.preventDefault());
-      formNewBill.addEventListener("submit", handleSubmit);
-      fireEvent.submit(formNewBill);
-
-      expect(handleSubmit).toHaveBeenCalled();
-    });
-
     test("I can send a completed invoice", async () => {
       document.body.innerHTML = NewBillUI();
       

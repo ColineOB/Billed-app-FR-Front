@@ -8,9 +8,12 @@ import { bills } from "../fixtures/bills.js"
 import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import userEvent from '@testing-library/user-event'
+import mockStore from "../__mocks__/store"
 
 import router from "../app/Router.js";
 import Bills from "../containers/Bills.js";
+
+jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -65,27 +68,6 @@ describe("Given I am connected as an employee", () => {
       userEvent.click(newBillButton);
       expect(handleSubmit).toHaveBeenCalled();
     })
-
-    // test("a new page opens when I click the button 'Nouvelle note de frais'", () => {
-    //   handleClickNewBill = jest.fn();
-    //   document.body.innerHTML = BillsUI({ data: bills })
-    //   let redirect = false
-    //   const newBillButton = screen.getByTestId('btn-new-bill');
-    //   const onNavigate = (pathname) => {
-    //     document.body.innerHTML = ROUTES({ pathname });
-    //     redirect = true;
-    //   };
-    //   // Ajout listener 'click' sur le bouton
-    //   newBillButton.addEventListener('click', () => {
-    //     handleClickNewBill();
-    //     onNavigate(ROUTES_PATH.NewBill)
-    //   });
-    //   // Simule clic 
-    //   userEvent.click(newBillButton);
-    //   // Vérifie si appelé
-    //   expect(redirect).toBeTruthy();
-    // })
-
     test("a modal opens when I click on the actions icon", () => {
       $.fn.modal = jest.fn()
       document.body.innerHTML = BillsUI({ data: bills })
