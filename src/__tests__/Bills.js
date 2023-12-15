@@ -40,26 +40,51 @@ describe("Given I am connected as an employee", () => {
         })
       expect(dates).toEqual(datesSorted)
     })
-
-    test("a new page opens when I click the button 'Nouvelle note de frais'", () => {
-      handleClickNewBill = jest.fn();
+    test("onNavigate", () => {
       document.body.innerHTML = BillsUI({ data: bills })
-      let redirect = false
       const newBillButton = screen.getByTestId('btn-new-bill');
+      
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
-        redirect = true;
       };
-      // Ajout listener 'click' sur le bouton
-      newBillButton.addEventListener('click', () => {
-        handleClickNewBill();
-        onNavigate(ROUTES_PATH.NewBill)
-      });
-      // Simule clic 
+
+      const testingBills = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      })
+      
+      const handleSubmit = jest.fn(testingBills.handleClickNewBill);
+      newBillButton.addEventListener('click', handleSubmit)
       userEvent.click(newBillButton);
-      // Vérifie si appelé
-      expect(redirect).toBeTruthy();
+      expect(handleSubmit).toHaveBeenCalled();
     })
+
+    // test("a new page opens when I click the button 'Nouvelle note de frais'", () => {
+    //   handleClickNewBill = jest.fn();
+    //   document.body.innerHTML = BillsUI({ data: bills })
+    //   let redirect = false
+    //   const newBillButton = screen.getByTestId('btn-new-bill');
+    //   const onNavigate = (pathname) => {
+    //     document.body.innerHTML = ROUTES({ pathname });
+    //     redirect = true;
+    //   };
+    //   // Ajout listener 'click' sur le bouton
+    //   newBillButton.addEventListener('click', () => {
+    //     handleClickNewBill();
+    //     onNavigate(ROUTES_PATH.NewBill)
+    //   });
+    //   // Simule clic 
+    //   userEvent.click(newBillButton);
+    //   // Vérifie si appelé
+    //   expect(redirect).toBeTruthy();
+    // })
 
     test("a modal opens when I click on the actions icon", () => {
       $.fn.modal = jest.fn()
