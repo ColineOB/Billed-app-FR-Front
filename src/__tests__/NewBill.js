@@ -86,7 +86,7 @@ describe("Given I am connected as an employee", () => {
       expect(handleSubmit).toHaveBeenCalled();
     });
     
-    test("upload file", async () => {
+    test("I can upload the file in a good format", async () => {
       document.body.innerHTML = NewBillUI();
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({

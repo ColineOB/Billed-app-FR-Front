@@ -43,7 +43,7 @@ describe("Given I am connected as an employee", () => {
         })
       expect(dates).toEqual(datesSorted)
     })
-    test("onNavigate", () => {
+    test("I can click on the 'New Bill' button which works", () => {
       document.body.innerHTML = BillsUI({ data: bills })
       const newBillButton = screen.getByTestId('btn-new-bill');
       
@@ -68,7 +68,7 @@ describe("Given I am connected as an employee", () => {
       userEvent.click(newBillButton);
       expect(handleSubmit).toHaveBeenCalled();
     })
-    test("a modal opens when I click on the actions icon", () => {
+    test("the actions icon works when i click on it", () => {
       $.fn.modal = jest.fn()
       document.body.innerHTML = BillsUI({ data: bills })
       const eyes = screen.getAllByTestId('icon-eye')
